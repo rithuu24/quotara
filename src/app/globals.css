@@ -1,0 +1,271 @@
+/* Updated: 2025-10-04T02:29:34.898Z */
+/* Updated: 2025-10-04T02:29:30.156Z */
+/* Updated: 2025-10-04T02:13:37.258Z */
+/* Updated: 2025-10-03T03:35:23.453Z */
+/* Updated: 2025-10-02T07:13:38.409Z */
+/* Updated: 2025-10-02T04:28:36.123Z */
+/* Updated: 2025-10-01T03:07:10.370Z */
+/* Updated: 2025-09-30T14:04:37.618Z */
+/* Updated: 2025-09-30T00:48:14.593Z */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0a0a0a;
+
+  --color-primary: #171717;
+  --color-primary-foreground: #fafafa;
+
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #171717;
+
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #737373;
+
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #171717;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #0a0a0a;
+
+  --color-chart-1: #e67e22;
+  --color-chart-2: #2d8659;
+  --color-chart-3: #1e3a5f;
+  --color-chart-4: #f1c40f;
+  --color-chart-5: #e74c3c;
+
+  --color-sidebar: #f7f7f7;
+  --color-sidebar-foreground: #404040;
+  --color-sidebar-primary: #1a1a1a;
+  --color-sidebar-primary-foreground: #fafafa;
+  --color-sidebar-accent: #f0f0f0;
+  --color-sidebar-accent-foreground: #1a1a1a;
+  --color-sidebar-border: #d4d4d8;
+  --color-sidebar-ring: #3b82f6;
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  /* Additional Design System Colors */
+  --color-primary-black: #000000;
+  --color-neutral-gray: #666666;
+  --color-light-gray: #999999;
+  --color-background-white: #ffffff;
+  --color-background-light: #fafafa;
+  --color-orange-accent: #ff6c37;
+  --color-blue-accent: #007aff;
+  --color-emerald-accent: #10b981;
+  --color-teal-dark: #2f5d62;
+  --color-purple-accent: #8b5cf6;
+  --color-success-green: #10b981;
+  --color-border-light: #e5e7eb;
+
+  /* Typography */
+  --font-display: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  
+  /* Scroll animations */
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-fade-in: fade-in 0.6s ease-out;
+  
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #e5e5e5;
+  }
+}
+
+@layer utilities {
+  body {
+    font-family: var(--font-body);
+  }
+}
+
+@layer base {
+  :root {
+    --background: var(--color-background-white);
+    --foreground: var(--color-primary-black);
+    --card: var(--color-background-white);
+    --card-foreground: var(--color-primary-black);
+    --popover: var(--color-background-white);
+    --popover-foreground: var(--color-primary-black);
+    --primary: var(--color-primary-black);
+    --primary-foreground: var(--color-background-white);
+    --secondary: var(--color-background-light);
+    --secondary-foreground: var(--color-primary-black);
+    --muted: var(--color-background-light);
+    --muted-foreground: var(--color-neutral-gray);
+    --accent: var(--color-background-light);
+    --accent-foreground: var(--color-primary-black);
+    --destructive: var(--color-orange-accent);
+    --destructive-foreground: var(--color-background-white);
+    --border: var(--color-border-light);
+    --input: var(--color-border-light);
+    --ring: var(--color-primary-black);
+    --chart-1: var(--color-purple-accent);
+    --chart-2: var(--color-teal-dark);
+    --chart-3: var(--color-orange-accent);
+    --chart-4: var(--color-blue-accent);
+    --chart-5: var(--color-success-green);
+    --radius: 0.5rem;
+    --sidebar-background: var(--color-background-light);
+    --sidebar-foreground: var(--color-neutral-gray);
+    --sidebar-primary: var(--color-primary-black);
+    --sidebar-primary-foreground: var(--color-background-white);
+    --sidebar-accent: var(--color-background-light);
+    --sidebar-accent-foreground: var(--color-primary-black);
+    --sidebar-border: var(--color-border-light);
+    --sidebar-ring: var(--color-blue-accent);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    line-height: 1.1;
+  }
+
+  h1 {
+    font-size: 4.5rem;
+    font-weight: 300;
+  }
+
+  h2 {
+    font-size: 3rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.4;
+    font-family: var(--font-body);
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .btn-text {
+    font-size: 1rem;
+    line-height: 1.2;
+    font-weight: 500;
+    font-family: var(--font-body);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  
+  /* Scroll-triggered animations */
+  .scroll-animate {
+    opacity: 0;
+    animation: var(--animate-fade-in-up);
+    animation-fill-mode: forwards;
+  }
+  
+  /* Feature hover effects */
+  .feature-card {
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+}
+
+/* Hide Next.js error overlay portal */
+nextjs-portal {
+  display: none !important;
+}
