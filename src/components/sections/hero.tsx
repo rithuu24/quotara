@@ -18,8 +18,8 @@ const HeroSection = () => {
 
           <Link href="/" className="group flex items-center gap-2 rounded-full bg-accent px-3 py-1.5 text-xs sm:text-sm font-medium text-accent-foreground transition-colors hover:bg-border">
             <PulsingDot />
-            <span className="hidden sm:inline">Introducing Quotara: prompt-to-business quotation maker</span>
-            <span className="sm:hidden">Introducing Quotara</span>
+            <span className="hidden sm:inline">Introducing Quotyl: prompt-to-business quotation maker</span>
+            <span className="sm:hidden">Introducing Quotyl</span>
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </Link>
 

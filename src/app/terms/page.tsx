@@ -15,14 +15,14 @@ export default function TermsPage() {
             Last Updated: January 1, 2025
           </p>
           <p className="text-lg text-muted-foreground mb-16">
-            Please read these Terms of Service carefully before using Quotara.
+            Please read these Terms of Service carefully before using Quotyl.
           </p>
 
           <div className="space-y-12">
             <section>
               <h2 className="text-3xl font-light mb-4">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground">
-                By accessing and using Quotara's services, you accept and agree to be bound by these Terms of Service. 
+                By accessing and using Quotyl's services, you accept and agree to be bound by these Terms of Service. 
                 If you do not agree to these terms, please do not use our services.
               </p>
             </section>
@@ -30,7 +30,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-3xl font-light mb-4">2. Description of Service</h2>
               <p className="text-muted-foreground mb-4">
-                Quotara provides an AI-powered platform for enterprise quotation management. Our services include:
+                Quotyl provides an AI-powered platform for enterprise quotation management. Our services include:
               </p>
               <ul className="space-y-2 text-muted-foreground ml-6">
                 <li className="flex items-start">
@@ -55,7 +55,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-3xl font-light mb-4">3. User Accounts</h2>
               <p className="text-muted-foreground mb-4">
-                To use Quotara, you must create an account. You agree to:
+                To use Quotyl, you must create an account. You agree to:
               </p>
               <ul className="space-y-2 text-muted-foreground ml-6">
                 <li className="flex items-start">
@@ -109,11 +109,11 @@ export default function TermsPage() {
             <section>
               <h2 className="text-3xl font-light mb-4">5. Intellectual Property</h2>
               <p className="text-muted-foreground mb-4">
-                All rights, title, and interest in Quotara's services, including all intellectual property rights, 
-                remain with Quotara Inc. You retain all rights to your data and content.
+                All rights, title, and interest in Quotyl's services, including all intellectual property rights, 
+                remain with Quotyl Inc. You retain all rights to your data and content.
               </p>
               <p className="text-muted-foreground">
-                You grant Quotara a limited license to use your data solely to provide and improve our services.
+                You grant Quotyl a limited license to use your data solely to provide and improve our services.
               </p>
             </section>
 
@@ -153,7 +153,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-3xl font-light mb-4">8. Data and Privacy</h2>
               <p className="text-muted-foreground">
-                Your use of Quotara is also governed by our Privacy Policy. We are committed to protecting your 
+                Your use of Quotyl is also governed by our Privacy Policy. We are committed to protecting your 
                 data and maintaining compliance with applicable data protection regulations including GDPR and CCPA.
               </p>
             </section>
@@ -182,7 +182,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-3xl font-light mb-4">10. Limitation of Liability</h2>
               <p className="text-muted-foreground">
-                To the maximum extent permitted by law, Quotara shall not be liable for any indirect, incidental, 
+                To the maximum extent permitted by law, Quotyl shall not be liable for any indirect, incidental, 
                 special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred 
                 directly or indirectly.
               </p>
@@ -218,8 +218,8 @@ export default function TermsPage() {
                 For questions about these Terms of Service, please contact us:
               </p>
               <p className="text-muted-foreground">
-                Email: <a href="mailto:legal@quotara.com" className="text-primary hover:underline">legal@quotara.com</a><br />
-                Address: Quotara Inc., San Francisco, CA, United States
+                Email: <a href="mailto:legal@quotyl.com" className="text-primary hover:underline">legal@quotyl.com</a><br />
+                Address: Quotyl Inc., San Francisco, CA, United States
               </p>
             </section>
           </div>

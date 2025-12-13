@@ -15,7 +15,7 @@ export default function ProductPage() {
               The Complete Quote Platform
             </h1>
             <p className="text-xl text-neutral-gray leading-relaxed">
-              From initial request to signed contract, Quotara streamlines every step 
+              From initial request to signed contract, Quotyl streamlines every step 
               of your quoting workflow with intelligent automation and powerful insights.
             </p>
           </div>
@@ -30,7 +30,7 @@ export default function ProductPage() {
               </p>
               <h2 className="text-5xl mb-6">Built for Enterprise Scale</h2>
               <p className="text-lg leading-relaxed opacity-90">
-                Quotara combines AI-powered automation with enterprise-grade reliability. 
+                Quotyl combines AI-powered automation with enterprise-grade reliability. 
                 Handle thousands of quotes per day while maintaining accuracy, compliance, 
                 and personalization at scale.
               </p>
@@ -243,9 +243,9 @@ export default function ProductPage() {
 
         {/* CTA Section */}
         <section className="container mx-auto px-10 py-20 text-center animate-in fade-in duration-700 delay-500">
-          <h2 className="text-5xl mb-6">See Quotara in Action</h2>
+          <h2 className="text-5xl mb-6">See Quotyl in Action</h2>
           <p className="text-xl text-neutral-gray mb-8 max-w-2xl mx-auto">
-            Schedule a personalized demo to see how Quotara can transform your quote-to-cash process.
+            Schedule a personalized demo to see how Quotyl can transform your quote-to-cash process.
           </p>
           <a 
             href="/contact"

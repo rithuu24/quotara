@@ -48,7 +48,7 @@ const EnterpriseFeatures = () => {
         {
           number: "01",
           title: "Define product catalog",
-          description: "Set up your products, services, and pricing tiers so Quotara understands what you sell.",
+          description: "Set up your products, services, and pricing tiers so Quotyl understands what you sell.",
           badge: "New"
         },
         { 

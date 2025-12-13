@@ -118,10 +118,10 @@ export default function ContactPage() {
                       For general inquiries
                     </p>
                     <a
-                      href="mailto:hello@quotara.com"
+                      href="mailto:hello@quotyl.com"
                       className="text-primary hover:underline"
                     >
-                      hello@quotara.com
+                      hello@quotyl.com
                     </a>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export default function ContactPage() {
               <div className="mt-12 bg-muted rounded-lg p-8">
                 <h3 className="text-xl font-medium mb-4">Sales Inquiries</h3>
                 <p className="text-muted-foreground text-sm mb-6">
-                  Interested in Quotara for your enterprise? Our sales team is ready to help you find the perfect solution.
+                  Interested in Quotyl for your enterprise? Our sales team is ready to help you find the perfect solution.
                 </p>
                 <a
                   href="/demo"

@@ -15,7 +15,7 @@ export default function PrivacyPage() {
             Last Updated: January 1, 2025
           </p>
           <p className="text-lg text-muted-foreground mb-16">
-            Your privacy is important to us. This Privacy Policy explains how Quotara collects, uses, and protects your information.
+            Your privacy is important to us. This Privacy Policy explains how Quotyl collects, uses, and protects your information.
           </p>
 
           <div className="space-y-12">
@@ -182,8 +182,8 @@ export default function PrivacyPage() {
                 If you have any questions about this Privacy Policy, please contact us:
               </p>
               <p className="text-muted-foreground">
-                Email: <a href="mailto:privacy@quotara.com" className="text-primary hover:underline">privacy@quotara.com</a><br />
-                Address: Quotara Inc., San Francisco, CA, United States
+                Email: <a href="mailto:privacy@quotyl.com" className="text-primary hover:underline">privacy@quotyl.com</a><br />
+                Address: Quotyl Inc., San Francisco, CA, United States
               </p>
             </section>
           </div>

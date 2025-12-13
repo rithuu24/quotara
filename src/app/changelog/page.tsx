@@ -15,7 +15,7 @@ export default function ChangelogPage() {
               Product Updates
             </h1>
             <p className="text-xl text-neutral-gray leading-relaxed">
-              Stay up to date with the latest features, improvements, and fixes to Quotara.
+              Stay up to date with the latest features, improvements, and fixes to Quotyl.
             </p>
           </div>
         </section>

@@ -1,9 +1,9 @@
 import { X, LinkedinIcon } from 'lucide-react';
+import QuotylLogo from '@/components/QuotylLogo';
 
 const GigaLogoWithText = () => (
   <a href="/" className="flex items-center gap-2.5">
-    <div className="w-6 h-6 bg-[#171717] rounded-full" />
-    <span className="text-base sm:text-lg font-medium tracking-tight text-primary">Quotara</span>
+    <QuotylLogo size="small" />
   </a>
 );
 
@@ -55,7 +55,7 @@ const Footer = () => {
 
         <div className="border-t border-border pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 sm:gap-6">
           <p className="text-[10px] sm:text-xs text-[#999999] text-center sm:text-left">
-            Copyright © 2025 Quotara Inc. All rights reserved.
+            Copyright © 2025 Quotyl Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-3 sm:gap-4">
             <a href="#" aria-label="X social media">

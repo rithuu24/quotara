@@ -9,7 +9,7 @@ export default function AboutPage() {
       <main className="container py-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-light mb-6">
-            About Quotara
+            About Quotyl
           </h1>
           <p className="text-lg text-muted-foreground mb-16">
             Transforming enterprise quotations with intelligent automation.
@@ -18,7 +18,7 @@ export default function AboutPage() {
           <section className="mb-16">
             <h2 className="text-3xl font-light mb-6">Our Mission</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              At Quotara, we believe that creating professional quotations shouldn't be a complex, 
+              At Quotyl, we believe that creating professional quotations shouldn't be a complex, 
               time-consuming process. Our mission is to empower enterprises with intelligent automation 
               that transforms the way quotes are generated, managed, and delivered.
             </p>
@@ -31,7 +31,7 @@ export default function AboutPage() {
           <section className="mb-16">
             <h2 className="text-3xl font-light mb-6">What We Do</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Quotara is an AI-powered platform designed for enterprises that handle complex quotations 
+              Quotyl is an AI-powered platform designed for enterprises that handle complex quotations 
               at scale. We help organizations:
             </p>
             <ul className="space-y-3 text-muted-foreground">
