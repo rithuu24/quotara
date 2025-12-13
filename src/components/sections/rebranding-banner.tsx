@@ -13,7 +13,7 @@ const RebrandingBanner = () => {
           <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-accent"></span>
         </span>
         <p className="uppercase tracking-wide">
-          Introducing Quotara: prompt-to-business quotation maker
+          Introducing Quotyl: prompt-to-business quotation maker
         </p>
         <ChevronRight className="h-4 w-4 text-muted-foreground duration-200 group-hover:translate-x-0.5" />
       </Link>

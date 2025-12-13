@@ -9,10 +9,10 @@ export default function DemoPage() {
       <main className="container py-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-light mb-6">
-            See Quotara in Action
+            See Quotyl in Action
           </h1>
           <p className="text-lg text-muted-foreground mb-12">
-            Experience how Quotara transforms complex enterprise quotations into simple, automated workflows.
+            Experience how Quotyl transforms complex enterprise quotations into simple, automated workflows.
           </p>
 
           <div className="bg-card border border-border rounded-lg p-12 mb-12">
@@ -117,7 +117,7 @@ export default function DemoPage() {
             <div className="text-center">
               <h3 className="text-xl font-medium mb-3">No Commitment</h3>
               <p className="text-muted-foreground text-sm">
-                Explore Quotara risk-free with no obligation to purchase
+                Explore Quotyl risk-free with no obligation to purchase
               </p>
             </div>
           </div>

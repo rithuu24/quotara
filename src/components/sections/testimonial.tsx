@@ -18,7 +18,7 @@ const Testimonial = () => {
           {/* Testimonial Content */}
           <div className="flex max-w-xl flex-col gap-10 animate-in fade-in slide-in-from-right-8 duration-700 delay-200">
             <h2 className="text-black">
-              Quotara is transforming how enterprises handle quotations… They've built state‑of‑the‑art AI that turns prompts into professional quotes faster than any manual process.
+              Quotyl is transforming how enterprises handle quotations… They've built state‑of‑the‑art AI that turns prompts into professional quotes faster than any manual process.
             </h2>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-orange-accent rounded-lg flex items-center justify-center flex-shrink-0">
