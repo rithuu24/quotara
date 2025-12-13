@@ -2,14 +2,34 @@
 
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { Document } from "@langchain/core/documents";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 
-// 1. Define your knowledge base data (replace with a Document Loader for files/URLs)
+import * as dotenv from "dotenv";
+const result = dotenv.config({ path: ".env.local" });
+
+console.log("--- DEBUGGING .ENV LOADING ---");
+if (result.error) {
+  console.log("❌ Error loading .env.local file:", result.error);
+} else {
+  console.log("✅ File found. Parsed keys:");
+  console.log(Object.keys(result.parsed || {}));
+}
+console.log("------------------------------");
+
+// Check specifically for your key
+const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+if (!apiKey) {
+    console.error("❌ CRITICAL: GOOGLE_GEMINI_API_KEY is still undefined.");
+    process.exit(1);
+}
+
+// 1. Define your knowledge base data
 const knowledgeBase = [
-  new Document({ pageContent: "Our Quotara Pro plan costs $200 per month and includes unlimited generations.", metadata: { source: "pricing" }}),
+  new Document({ pageContent: "Our Quotyl Pro plan costs $200 per month and includes unlimited generations.", metadata: { source: "pricing" }}),
   new Document({ pageContent: "To reset your password, click the 'Forgot Password' link on the login page.", metadata: { source: "FAQ" }}),
-  // ... add more documents
+  new Document({ pageContent: "Quotyl specializes in AI-driven SaaS solutions for quotation generation.", metadata: { source: "about" }}),
+  new Document({ pageContent: "Contact support at support@quotara.com.", metadata: { source: "contact" }}),
 ];
 
 // 2. Load and Split Documents
@@ -23,19 +43,25 @@ export async function createVectorStore() {
   
   const allSplits = await splitter.splitDocuments(knowledgeBase);
   
-  // 3. Create Embeddings and Store
-  const embeddings = new OpenAIEmbeddings(); 
+  // FIXED: Changed 'modelName' to 'model'
+  const embeddings = new GoogleGenerativeAIEmbeddings({
+    model: "embedding-001", 
+    apiKey: process.env.GOOGLE_API_KEY
+  }); 
   
-  // FAISS will save the index locally in a 'faiss_index' directory
+  console.log("Generating embeddings...");
+  
   const vectorStore = await FaissStore.fromDocuments(
     allSplits,
     embeddings
   );
   
   await vectorStore.save("./faiss_index");
-  console.log("Vector store successfully created and saved!");
+  console.log("✅ Success! Index saved to ./faiss_index");
   return vectorStore;
 }
 
-// You can run this file directly in Node.js to create the index
-// createVectorStore();
+// EXECUTE THE FUNCTION
+if (require.main === module || process.argv[1] === import.meta.filename) {
+    createVectorStore().catch(console.error);
+}
