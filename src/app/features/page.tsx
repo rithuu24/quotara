@@ -103,7 +103,7 @@ export default function FeaturesPage() {
           <div className="container mx-auto px-10">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <p className="text-sm font-medium tracking-wide text-neutral-gray uppercase mb-4">
-                THE QUOTARA WAY
+                THE QUOTYL WAY
               </p>
               <h2 className="text-5xl mb-6">Streamlined Quote Process</h2>
               <p className="text-lg text-neutral-gray leading-relaxed">
@@ -163,7 +163,7 @@ export default function FeaturesPage() {
         <section className="container mx-auto px-10 py-20 text-center animate-in fade-in duration-700 delay-500">
           <h2 className="text-5xl mb-6">Ready to transform your quoting process?</h2>
           <p className="text-xl text-neutral-gray mb-8 max-w-2xl mx-auto">
-            Join hundreds of enterprises automating their quote generation with Quotara.
+            Join hundreds of enterprises automating their quote generation with Quotyl.
           </p>
           <a 
             href="/contact"

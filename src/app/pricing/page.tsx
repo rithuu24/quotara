@@ -16,7 +16,7 @@ export default function PricingPage() {
               We're currently crafting the perfect pricing plans for freelancers, agencies, and enterprises.
               <br />
               <br />
-              Our goal? To make Quotara accessible, transparent, and worth every rupee.
+              Our goal? To make Quotyl accessible, transparent, and worth every rupee.
             </p>
           </div>
         </section>

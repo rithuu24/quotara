@@ -1,30 +1,58 @@
-import Link from 'next/link';
+"use client";
 
-const GigaLogo = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 32 32"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="text-primary"
-  >
-    <path
-      d="M14.901 0.038C18.057 -0.179 21.208 0.544 23.953 2.118C26.699 3.691 28.917 6.044 30.325 8.878C31.734 11.711 32.27 14.899 31.867 18.038C31.327 22.246 29.137 26.068 25.78 28.662C22.422 31.256 18.171 32.41 13.963 31.87C10.825 31.467 7.875 30.142 5.489 28.063C3.104 25.985 1.388 23.245 0.559 20.191C-0.27 17.137 -0.175 13.906 0.832 10.906C1.84 7.906 3.714 5.272 6.218 3.338C8.722 1.403 11.744 0.255 14.901 0.038Z"
-      fill="currentColor"
-    />
-  </svg>
-);
+import { FormEvent, useState } from "react";
+import Link from 'next/link';
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import QuotylLogo from "@/components/QuotylLogo";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setMessage(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    setMessage("Check your email to confirm your account.");
+    setLoading(false);
+    router.push("/login");
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Logo & Header */}
         <div className="text-center mb-12">
           <Link href="/" className="inline-flex items-center justify-center gap-3 mb-8">
-            <GigaLogo />
-            <span className="text-2xl font-medium tracking-tight">Quotara</span>
+            <QuotylLogo size="medium" showTagline={true} />
           </Link>
           <h1 className="text-4xl font-light mb-3">Create your account</h1>
           <p className="text-neutral-gray">Start automating your quotes today</p>
@@ -32,7 +60,7 @@ export default function RegisterPage() {
 
         {/* Sign Up Form */}
         <div className="bg-white border border-border rounded-2xl p-8 shadow-sm">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-2">
                 Full name
@@ -42,6 +70,8 @@ export default function RegisterPage() {
                 id="name"
                 name="name"
                 required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full h-12 px-4 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-orange-accent transition-all"
                 placeholder="John Doe"
               />
@@ -56,6 +86,8 @@ export default function RegisterPage() {
                 id="email"
                 name="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-12 px-4 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-orange-accent transition-all"
                 placeholder="you@company.com"
               />
@@ -71,6 +103,8 @@ export default function RegisterPage() {
                 name="password"
                 required
                 autoComplete="off"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-12 px-4 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-orange-accent transition-all"
                 placeholder="Create a strong password"
               />
@@ -86,16 +120,30 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 required
                 autoComplete="off"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full h-12 px-4 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-orange-accent transition-all"
                 placeholder="Confirm your password"
               />
             </div>
 
+            {error && (
+              <p className="text-sm text-red-600" role="alert">
+                {error}
+              </p>
+            )}
+            {message && (
+              <p className="text-sm text-green-600" role="status">
+                {message}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-medium transition-transform duration-200 hover:-translate-y-0.5 hover:bg-primary/90"
+              disabled={loading}
+              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-medium transition-transform duration-200 hover:-translate-y-0.5 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Create account
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 

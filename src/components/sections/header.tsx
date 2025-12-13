@@ -1,24 +1,10 @@
 "use client";
 
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
-
-const GigaLogo = () => (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="text-primary"
-    >
-      <path
-        d="M14.901 0.038C18.057 -0.179 21.208 0.544 23.953 2.118C26.699 3.691 28.917 6.044 30.325 8.878C31.734 11.711 32.27 14.899 31.867 18.038C31.327 22.246 29.137 26.068 25.78 28.662C22.422 31.256 18.171 32.41 13.963 31.87C10.825 31.467 7.875 30.142 5.489 28.063C3.104 25.985 1.388 23.245 0.559 20.191C-0.27 17.137 -0.175 13.906 0.832 10.906C1.84 7.906 3.714 5.272 6.218 3.338C8.722 1.403 11.744 0.255 14.901 0.038Z"
-        fill="currentColor"
-      />
-    </svg>
-);
+import { Menu, X, LogOut } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { QuotylLogoCompact } from '@/components/QuotylLogo';
 
 const NavLink = ({ href, children, isExternal = false }: { href: string; children: React.ReactNode; isExternal?: boolean }) => {
   const commonClasses = "block text-sm font-inter text-foreground rounded-2xl px-[18px] py-1 transition-all duration-200 hover:bg-black/5";
@@ -42,15 +28,50 @@ const NavLink = ({ href, children, isExternal = false }: { href: string; childre
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      if (user) {
+        setDisplayName(
+          (user.user_metadata?.full_name as string | undefined) ??
+            (user.user_metadata?.name as string | undefined) ??
+            user.email ??
+            null
+        );
+      } else {
+        setDisplayName(null);
+      }
+    };
+
+    loadUser();
+    const {
+      data: authListener,
+    } = supabase.auth.onAuthStateChange(() => {
+      loadUser();
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setDisplayName(null);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header 
@@ -63,9 +84,8 @@ export default function Header() {
             ? 'border-border bg-white shadow-lg backdrop-blur supports-[backdrop-filter]:bg-white/95' 
             : 'border-border/60 bg-white/60 shadow-md backdrop-blur supports-[backdrop-filter]:bg-white/50'
         } animate-in fade-in slide-in-from-top-2 ease-out`}>
-          <Link href="/" aria-label="Quotara Home" className="flex items-center gap-2">
-            <GigaLogo />
-            <span className="ml-1 text-xs md:text-sm font-medium tracking-tight text-foreground">Quotara</span>
+          <Link href="/" aria-label="Quotyl Home" className="flex items-center gap-2">
+            <QuotylLogoCompact />
           </Link>
           
           <nav className="hidden lg:block">
@@ -86,12 +106,25 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-x-2 md:gap-x-3">
-            <a 
-              href="/login"
-              className="hidden sm:block text-xs md:text-sm text-black transition-colors hover:text-neutral-700"
-            >
-              Sign in
-            </a>
+            {displayName ? (
+              <div className="hidden sm:flex items-center gap-2 text-xs md:text-sm text-black">
+                <span className="rounded-full bg-black/5 px-3 py-1">{displayName}</span>
+                <button
+                  onClick={handleSignOut}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs md:text-sm text-black hover:bg-black/5 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <a 
+                href="/login"
+                className="hidden sm:block text-xs md:text-sm text-black transition-colors hover:text-neutral-700"
+              >
+                Sign in
+              </a>
+            )}
             <Link 
               href="/generate"
               className="btn-text flex h-8 md:h-10 items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-700 px-4 md:px-6 text-xs md:text-sm text-white transition-all duration-200 hover:scale-105 shadow-md"
@@ -135,9 +168,22 @@ export default function Header() {
                 </Link>
               </li>
               <li className="sm:hidden pt-2 border-t border-border">
-                <Link href="/login" className="block px-4 py-3 text-sm rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                  Sign in
-                </Link>
+                {displayName ? (
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 text-sm rounded-xl">
+                    <span className="font-medium">{displayName}</span>
+                    <button
+                      onClick={handleSignOut}
+                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs text-black hover:bg-black/5 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Log out
+                    </button>
+                  </div>
+                ) : (
+                  <Link href="/login" className="block px-4 py-3 text-sm rounded-xl hover:bg-black/5 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                    Sign in
+                  </Link>
+                )}
               </li>
             </ul>
           </nav>
