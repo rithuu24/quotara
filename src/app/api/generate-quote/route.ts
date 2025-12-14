@@ -1,106 +1,148 @@
-// src/app/api/quote/route.ts (or similar)
+// src/app/api/generate-quote/route.ts
+import { NextResponse } from "next/server";
+import path from "path";
+import fs from "fs";
+import dotenv from "dotenv";
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { NextResponse } from 'next/server';
-
-// 1. LANGCHAIN RAG IMPORTS
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { BaseRetriever } from "@langchain/core/retrievers";
+import { Document } from "@langchain/core/documents";
 
-// --- RAG Initialization (Runs ONCE at server startup) ---
-let retriever: BaseRetriever;
-const INDEX_PATH = "./faiss_index";
+dotenv.config({ path: ".env.local" });
 
-try {
-    // 2. Initialize Embeddings (Must match what was used for indexing)
-    const embeddings = new OpenAIEmbeddings(); 
-    
-    // 3. Load the Vector Store from disk
-    const vectorStore = await FaissStore.load(INDEX_PATH, embeddings);
-    
-    // 4. Create the Retriever (fetches the top 3 relevant documents)
-    retriever = vectorStore.asRetriever(3);
-    console.log("RAG Retriever successfully loaded.");
+// --------------------------------------------------
+// FAISS INDEX PATH
+// --------------------------------------------------
+const INDEX_PATH = path.join(process.cwd(), "faiss_index");
 
-} catch (e) {
-    console.error(`ERROR: Failed to load RAG index from ${INDEX_PATH}. Did you run 'createIndex.ts'?`, e);
-    // If loading fails, the retriever will remain undefined, and the API call will fall back.
+// --------------------------------------------------
+// Mock embeddings class for fallback
+// --------------------------------------------------
+class MockEmbeddings {
+  async embedQuery(_text: string): Promise<number[]> {
+    return Array(1536).fill(Math.random());
+  }
+
+  async embedDocuments(_docs: string[]): Promise<number[][]> {
+    return _docs.map(() => Array(1536).fill(Math.random()));
+  }
 }
 
+// --------------------------------------------------
+// Initialize FAISS retriever with automatic fallback
+// --------------------------------------------------
+let retriever: FaissStore | null = null;
 
-// --- API Handler ---
+async function initRetriever(): Promise<FaissStore | null> {
+  if (!fs.existsSync(INDEX_PATH)) {
+    console.warn("⚠️ FAISS index not found. RAG unavailable.");
+    return null;
+  }
 
-export async function POST(request: Request) {
+  let embeddings: GoogleGenerativeAIEmbeddings | MockEmbeddings;
+
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("⚠️ GOOGLE_GEMINI_API_KEY missing. Using mock embeddings.");
+    embeddings = new MockEmbeddings();
+  } else {
+    embeddings = new GoogleGenerativeAIEmbeddings({ model: "models/embedding-001", apiKey });
     try {
-        const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-        
-        if (!apiKey) {
-            return NextResponse.json({ error: 'API key is not configured' }, { status: 500 });
-        }
-
-        const { prompt } = await request.json();
-
-        if (!prompt || !prompt.trim()) {
-            return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
-        }
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        
-        // --- 5. RAG Retrieval ---
-        let context = "";
-        if (retriever) {
-            const documents = await retriever.invoke(prompt);
-            context = documents.map(doc => doc.pageContent).join("\n\n---\n\n");
-            console.log(`Retrieved ${documents.length} documents for context.`);
-        } else {
-            console.warn("Retriever not initialized. Running LLM call without RAG context.");
-        }
-
-
-        // --- 6. Prompt Construction (The RAG Step) ---
-        
-        const systemPrompt = `You are a professional business quotation generator. Generate a detailed, professional business quotation based on the user's requirements.
-
-Format the quotation with:
-- Professional header with company placeholder, date, and quote ID
-- Clear project/service description
-- Itemized breakdown with realistic pricing
-- Subtotal, tax, and total
-- Payment terms, Validity period, Terms & conditions, Contact information placeholder.
-
-Use proper formatting with lines (━), spacing, and structure. Make it look professional and ready to send to a client. Include realistic pricing based on the requirements provided.`;
-
-
-        const finalPrompt = `
-        SYSTEM INSTRUCTIONS: ${systemPrompt}
-        
-        ${context ? `
-        --- CONTEXTUAL KNOWLEDGE BASE ---
-        Use the following information, retrieved from the company's knowledge base, to ensure the quotation adheres to standard terms, pricing, and policies.
-        CONTEXT:
-        ${context}
-        --- END CONTEXTUAL KNOWLEDGE BASE ---
-        ` : ''}
-
-        CLIENT REQUIREMENTS: ${prompt}
-        `;
-
-
-        // --- 7. Call Gemini ---
-        const result = await model.generateContent(finalPrompt);
-        const quotation = result.response.text();
-
-        return NextResponse.json({ quotation });
-    } catch (error: any) {
-        console.error('Error generating quotation:', error);
-        return NextResponse.json(
-            { 
-                error: 'Failed to generate quotation',
-                details: error.message || 'Unknown error occurred',
-            },
-            { status: 500 }
-        );
+      // Quick test to handle quota failures
+      await embeddings.embedQuery("test");
+    } catch (err) {
+      console.warn("⚠️ Google Gemini embeddings failed, falling back to mock embeddings.", err);
+      embeddings = new MockEmbeddings();
     }
+  }
+
+  try {
+    retriever = await FaissStore.load(INDEX_PATH, embeddings as any);
+    console.log("✅ FAISS retriever loaded successfully.");
+  } catch (err) {
+    console.error("❌ Failed to load FAISS retriever.", err);
+    retriever = null;
+  }
+
+  return retriever;
+}
+
+// Initialize retriever on startup
+initRetriever();
+
+// --------------------------------------------------
+// API Handler
+// --------------------------------------------------
+export async function POST(request: Request) {
+  try {
+    const { prompt } = await request.json();
+
+    if (!prompt || !prompt.trim()) {
+      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    }
+
+    // Ensure retriever is initialized
+    if (!retriever) {
+      await initRetriever();
+    }
+
+    // Ensure API key is present for LLM generation
+    const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "GOOGLE_GEMINI_API_KEY not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Initialize Google Gemini LLM
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    // --- RAG Retrieval ---
+    let context = "";
+    if (retriever) {
+      try {
+        const docs: Document[] = await retriever.similaritySearch(prompt, 3);
+        context = docs.map((d) => d.pageContent).join("\n\n---\n\n");
+        console.log(`Retrieved ${docs.length} documents for context.`);
+      } catch (err) {
+        console.warn("⚠️ FAISS retrieval failed, continuing without context.", err);
+      }
+    }
+
+    // --- Construct prompt ---
+    const systemPrompt = `
+You are a professional business quotation generator.
+Generate a detailed, professional business quotation based on the client's requirements.
+Include:
+- Header with company placeholder, date, and quote ID
+- Clear project/service description
+- Itemized pricing breakdown
+- Subtotal, tax, total
+- Payment terms, validity period, T&Cs, contact info
+Use proper formatting and realistic pricing.
+`;
+
+    const finalPrompt = `
+SYSTEM INSTRUCTIONS: ${systemPrompt}
+
+${context ? `--- CONTEXT ---\n${context}\n--- END CONTEXT ---` : ""}
+
+CLIENT REQUIREMENTS: ${prompt}
+`;
+
+    // --- Generate Quotation ---
+    const result = await model.generateContent(finalPrompt);
+    const quotation = result.response.text();
+
+    return NextResponse.json({ quotation });
+  } catch (error: any) {
+    console.error("Error generating quotation:", error);
+    return NextResponse.json(
+      { error: "Failed to generate quotation", details: error.message || "Unknown error" },
+      { status: 500 }
+    );
+  }
 }
