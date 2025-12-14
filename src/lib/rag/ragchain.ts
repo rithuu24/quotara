@@ -1,53 +1,82 @@
 // src/lib/rag/ragChain.ts
 
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import path from "path";
+import fs from "fs";
+
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
+import { OllamaEmbeddings } from "@langchain/ollama";
+import { ChatOllama } from "@langchain/ollama";
+
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { Document } from "@langchain/core/documents"; 
-import * as dotenv from "dotenv";
+import { Document } from "@langchain/core/documents";
 
-dotenv.config({ path: ".env.local" });
+// --------------------------------------------------
+// FAISS INDEX PATH
+// --------------------------------------------------
+const INDEX_PATH = path.join(process.cwd(), "faiss_index");
 
+// --------------------------------------------------
+// Cached chain
+// --------------------------------------------------
 let ragChain: RunnableSequence | null = null;
 
+// --------------------------------------------------
+// Prompt
+// --------------------------------------------------
 const RAG_PROMPT_TEMPLATE = `
-You are a helpful assistant for the Quotyl website. 
-Use the following context to answer the user's question accurately.
-If you cannot find the answer in the context, state clearly that the information is not available.
+You are a helpful assistant for the Quotyl website.
+
+Instructions:
+- Answer ONLY using the provided context
+- If the answer is not present, say clearly that the information is not available
+- Be concise and professional
 
 CONTEXT:
 {context}
 
-QUESTION: {question}
+QUESTION:
+{question}
 `;
 
 const ragPrompt = PromptTemplate.fromTemplate(RAG_PROMPT_TEMPLATE);
 
-async function getRagChain() {
+// --------------------------------------------------
+// Initialize RAG Chain
+// --------------------------------------------------
+async function getRagChain(): Promise<RunnableSequence> {
   if (ragChain) return ragChain;
 
-  console.log("Initializing RAG Chain with Gemini...");
-  
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-    model: "embedding-001", // Note: Embeddings also use 'model', not 'modelName'
-    apiKey: process.env.GOOGLE_API_KEY
+  if (!fs.existsSync(INDEX_PATH)) {
+    throw new Error("FAISS index not found. Please generate the index first.");
+  }
+
+  console.log("🔹 Initializing RAG chain with Ollama + FAISS");
+
+  // Embeddings (must match index creation)
+  const embeddings = new OllamaEmbeddings({
+    model: "nomic-embed-text",
+    baseUrl: "http://localhost:11434",
   });
-  
-  const vectorStore = await FaissStore.load("./faiss_index", embeddings);
-  const retriever = vectorStore.asRetriever(3);
-  
-  // FIX APPLIED HERE: changed modelName to model
-  const llm = new ChatGoogleGenerativeAI({ 
-    model: "gemini-1.5-flash", 
+
+  // Load FAISS
+  const vectorStore = await FaissStore.load(INDEX_PATH, embeddings);
+  const retriever = vectorStore.asRetriever({
+    k: 3,
+  });
+
+  // Ollama LLM
+  const llm = new ChatOllama({
+    model: "llama3.1",
+    baseUrl: "http://localhost:11434",
     temperature: 0,
-    apiKey: process.env.GOOGLE_API_KEY
   });
-  
+
   const outputParser = new StringOutputParser();
 
-  const formatDocs = (docs: Document[]) => docs.map((doc) => doc.pageContent).join("\n\n");
+  const formatDocs = (docs: Document[]) =>
+    docs.map((doc) => doc.pageContent).join("\n\n");
 
   ragChain = RunnableSequence.from([
     RunnablePassthrough.assign({
@@ -61,17 +90,19 @@ async function getRagChain() {
     outputParser,
   ]);
 
-  console.log("RAG Chain initialized.");
+  console.log("✅ RAG chain initialized");
   return ragChain;
 }
 
-export async function askRAG(question: string) {
+// --------------------------------------------------
+// Public API
+// --------------------------------------------------
+export async function askRAG(question: string): Promise<string> {
   try {
     const chain = await getRagChain();
-    const response = await chain.invoke({ question });
-    return response;
+    return await chain.invoke({ question });
   } catch (error) {
-    console.error("RAG Execution Error:", error);
-    return "I'm sorry, I am having trouble accessing my knowledge base right now.";
+    console.error("❌ RAG execution error:", error);
+    return "I'm sorry, I couldn't retrieve that information right now.";
   }
 }

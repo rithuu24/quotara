@@ -2,14 +2,11 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import dotenv from "dotenv";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
+import { OllamaEmbeddings } from "@langchain/ollama";
+import { Ollama } from "@langchain/ollama";
 import { Document } from "@langchain/core/documents";
-
-dotenv.config({ path: ".env.local" });
 
 // --------------------------------------------------
 // FAISS INDEX PATH
@@ -17,131 +14,108 @@ dotenv.config({ path: ".env.local" });
 const INDEX_PATH = path.join(process.cwd(), "faiss_index");
 
 // --------------------------------------------------
-// Mock embeddings class for fallback
+// Globals (cached across requests)
 // --------------------------------------------------
-class MockEmbeddings {
-  async embedQuery(_text: string): Promise<number[]> {
-    return Array(1536).fill(Math.random());
-  }
-
-  async embedDocuments(_docs: string[]): Promise<number[][]> {
-    return _docs.map(() => Array(1536).fill(Math.random()));
-  }
-}
+let vectorStore: FaissStore | null = null;
 
 // --------------------------------------------------
-// Initialize FAISS retriever with automatic fallback
+// Initialize FAISS + Ollama Embeddings
 // --------------------------------------------------
-let retriever: FaissStore | null = null;
+async function loadVectorStore(): Promise<FaissStore | null> {
+  if (vectorStore) return vectorStore;
 
-async function initRetriever(): Promise<FaissStore | null> {
   if (!fs.existsSync(INDEX_PATH)) {
-    console.warn("⚠️ FAISS index not found. RAG unavailable.");
+    console.warn("⚠️ FAISS index not found. RAG disabled.");
     return null;
   }
 
-  let embeddings: GoogleGenerativeAIEmbeddings | MockEmbeddings;
-
-  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn("⚠️ GOOGLE_GEMINI_API_KEY missing. Using mock embeddings.");
-    embeddings = new MockEmbeddings();
-  } else {
-    embeddings = new GoogleGenerativeAIEmbeddings({ model: "models/embedding-001", apiKey });
-    try {
-      // Quick test to handle quota failures
-      await embeddings.embedQuery("test");
-    } catch (err) {
-      console.warn("⚠️ Google Gemini embeddings failed, falling back to mock embeddings.", err);
-      embeddings = new MockEmbeddings();
-    }
-  }
-
   try {
-    retriever = await FaissStore.load(INDEX_PATH, embeddings as any);
-    console.log("✅ FAISS retriever loaded successfully.");
-  } catch (err) {
-    console.error("❌ Failed to load FAISS retriever.", err);
-    retriever = null;
-  }
+    const embeddings = new OllamaEmbeddings({
+      model: "nomic-embed-text",
+      baseUrl: "http://localhost:11434",
+    });
 
-  return retriever;
+    vectorStore = await FaissStore.load(INDEX_PATH, embeddings);
+    console.log("✅ FAISS vector store loaded");
+    return vectorStore;
+  } catch (error) {
+    console.error("❌ Failed to load FAISS index:", error);
+    return null;
+  }
 }
 
-// Initialize retriever on startup
-initRetriever();
-
 // --------------------------------------------------
-// API Handler
+// POST Handler
 // --------------------------------------------------
 export async function POST(request: Request) {
   try {
-    const { prompt } = await request.json();
+    const body = await request.json();
+    const prompt: string | undefined = body?.prompt;
 
     if (!prompt || !prompt.trim()) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
-    }
-
-    // Ensure retriever is initialized
-    if (!retriever) {
-      await initRetriever();
-    }
-
-    // Ensure API key is present for LLM generation
-    const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-    if (!apiKey) {
       return NextResponse.json(
-        { error: "GOOGLE_GEMINI_API_KEY not configured" },
-        { status: 500 }
+        { error: "Prompt is required" },
+        { status: 400 }
       );
     }
 
-    // Initialize Google Gemini LLM
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Load vector store
+    const store = await loadVectorStore();
 
-    // --- RAG Retrieval ---
+    // Initialize Ollama LLM
+    const llm = new Ollama({
+      model: "llama3.1",
+      baseUrl: "http://localhost:11434",
+      temperature: 0.3,
+    });
+
+    // --------------------------------------------------
+    // RAG: Retrieve context
+    // --------------------------------------------------
     let context = "";
-    if (retriever) {
+
+    if (store) {
       try {
-        const docs: Document[] = await retriever.similaritySearch(prompt, 3);
-        context = docs.map((d) => d.pageContent).join("\n\n---\n\n");
-        console.log(`Retrieved ${docs.length} documents for context.`);
+        const docs: Document[] = await store.similaritySearch(prompt, 3);
+        context = docs.map(d => d.pageContent).join("\n\n---\n\n");
       } catch (err) {
-        console.warn("⚠️ FAISS retrieval failed, continuing without context.", err);
+        console.warn("⚠️ FAISS retrieval failed:", err);
       }
     }
 
-    // --- Construct prompt ---
+    // --------------------------------------------------
+    // Prompt construction
+    // --------------------------------------------------
     const systemPrompt = `
 You are a professional business quotation generator.
-Generate a detailed, professional business quotation based on the client's requirements.
-Include:
-- Header with company placeholder, date, and quote ID
-- Clear project/service description
-- Itemized pricing breakdown
-- Subtotal, tax, total
-- Payment terms, validity period, T&Cs, contact info
-Use proper formatting and realistic pricing.
+
+Rules:
+- Use clear business language
+- Provide itemized pricing
+- Include subtotal, tax, and total
+- Add payment terms and validity
+- Format professionally
 `;
 
     const finalPrompt = `
-SYSTEM INSTRUCTIONS: ${systemPrompt}
+${systemPrompt}
 
 ${context ? `--- CONTEXT ---\n${context}\n--- END CONTEXT ---` : ""}
 
-CLIENT REQUIREMENTS: ${prompt}
+CLIENT REQUIREMENTS:
+${prompt}
 `;
 
-    // --- Generate Quotation ---
-    const result = await model.generateContent(finalPrompt);
-    const quotation = result.response.text();
+    // --------------------------------------------------
+    // Generate response
+    // --------------------------------------------------
+    const quotation = await llm.invoke(finalPrompt);
 
     return NextResponse.json({ quotation });
   } catch (error: any) {
-    console.error("Error generating quotation:", error);
+    console.error("❌ API Error:", error);
     return NextResponse.json(
-      { error: "Failed to generate quotation", details: error.message || "Unknown error" },
+      { error: "Failed to generate quotation" },
       { status: 500 }
     );
   }
