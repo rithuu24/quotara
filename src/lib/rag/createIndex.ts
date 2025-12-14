@@ -6,6 +6,7 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 
 import * as dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 const result = dotenv.config({ path: ".env.local" });
 
 console.log("--- DEBUGGING .ENV LOADING ---");
@@ -46,7 +47,7 @@ export async function createVectorStore() {
   // FIXED: Changed 'modelName' to 'model'
   const embeddings = new GoogleGenerativeAIEmbeddings({
     model: "embedding-001", 
-    apiKey: process.env.GOOGLE_API_KEY
+    apiKey: process.env.GOOGLE_GEMINI_API_KEY
   }); 
   
   console.log("Generating embeddings...");

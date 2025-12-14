@@ -6,7 +6,8 @@
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "generate-index": "npx tsx src/lib/rag/createIndex.ts"
     },
     "dependencies": {
         "@babel/parser": "^7.28.4",
