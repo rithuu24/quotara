@@ -15,8 +15,9 @@
         "@headlessui/react": "^2.2.8",
         "@heroicons/react": "^2.2.0",
         "@hookform/resolvers": "^5.1.1",
-        "@langchain/community": "^1.1.0",
-        "@langchain/core": "^1.1.5",
+        "@lancedb/lancedb": "^0.19.1",
+        "@langchain/community": "^1.1.1",
+        "@langchain/core": "^1.1.8",
         "@langchain/google-genai": "^2.1.0",
         "@langchain/ollama": "^1.1.0",
         "@langchain/openai": "^1.2.0",
@@ -64,6 +65,7 @@
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "cobe": "^0.6.4",
+        "cors": "^2.8.5",
         "date-fns": "^4.1.0",
         "dotenv": "^17.2.3",
         "dotted-map": "^2.2.3",
@@ -73,6 +75,7 @@
         "embla-carousel-autoplay": "^8.6.0",
         "embla-carousel-react": "^8.6.0",
         "estree-walker": "2.0.2",
+        "express": "^5.2.1",
         "faiss-node": "^0.5.1",
         "framer-motion": "^12.23.12",
         "input-otp": "^1.4.2",
@@ -112,7 +115,9 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
         "@tailwindcss/postcss": "^4",
-        "@types/node": "^20",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "@types/node": "^20.19.27",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "@types/react-syntax-highlighter": "^15.5.13",
@@ -120,7 +125,13 @@
         "eslint": "^9.35.0",
         "eslint-config-next": "^15.5.3",
         "tailwindcss": "^4",
+        "tsx": "^4.21.0",
         "tw-animate-css": "^1.3.8",
-        "typescript": "^5"
-    }
+        "typescript": "^5.9.3"
+    },
+    "description": "AI saas aplication \r SUSHANTH HARITHA",
+    "main": "index.js",
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }
